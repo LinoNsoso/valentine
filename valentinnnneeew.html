@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Valentine?</title>
+    <style>
+        body {
+            background-color: #f8e1d4;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+            transition: all 0.5s;
+        }
+
+        h1 {
+            color: #ff69b4;
+            font-size: 2.5em;
+            transition: all 0.5s;
+        }
+
+        .message {
+            font-size: 1.5em;
+            color: #ff1493;
+            margin-bottom: 20px;
+            transition: all 0.5s;
+        }
+
+        .button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            width: 150px;
+            height: 50px;
+        }
+
+        .yes {
+            background-color: #ff6347;
+        }
+
+        .no {
+            background-color: #ff4500;
+        }
+
+        .button:hover {
+            transform: scale(1.1);
+        }
+
+        .heart {
+            font-size: 2em;
+            color: #ff1493;
+        }
+
+        /* Angry Virus Hack Theme */
+        .angry-theme {
+            background-color: #000000;
+            color: limegreen;
+            text-align: center;
+            animation: glitch 0.3s linear infinite;
+        }
+
+        /* Glitchy Text Effect */
+        @keyframes glitch {
+            0% { transform: translateX(0); text-shadow: 0 0 5px limegreen, 0 0 10px limegreen, 0 0 15px limegreen; }
+            50% { transform: translateX(2px); text-shadow: 0 0 5px limegreen, 0 0 10px limegreen, 0 0 15px limegreen; }
+            100% { transform: translateX(-2px); text-shadow: 0 0 5px limegreen, 0 0 10px limegreen, 0 0 15px limegreen; }
+        }
+
+        /* Flood of YES Buttons effect */
+        .yes-flood {
+            position: absolute;
+            font-size: 3em;
+            font-weight: bold;
+            color: limegreen;
+            text-shadow: 0 0 5px limegreen, 0 0 10px limegreen;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            animation: yesFlood 0.1s linear infinite;
+            opacity: 0.9;
+            z-index: 9999;
+        }
+
+        /* Make YES buttons flood dramatically */
+        @keyframes yesFlood {
+            0% { top: 0; opacity: 1; }
+            100% { top: 100vh; opacity: 0; }
+        }
+
+        /* Extreme Lag Effect */
+        .lagging {
+            animation: lag 0.1s infinite;
+            color: limegreen;
+            background-color: black;
+        }
+
+        @keyframes lag {
+            0% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Error flood effect */
+        .error-message {
+            font-size: 1.5em;
+            color: limegreen;
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            animation: errorFlood 0.5s infinite;
+        }
+
+        @keyframes errorFlood {
+            0% { top: 0; opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* Override button and text colors during hack mode */
+        .angry-theme .message,
+        .angry-theme h1,
+        .angry-theme .button,
+        .angry-theme .heart {
+            color: limegreen;
+        }
+
+        .angry-theme .button {
+            background-color: #00ff00;
+            border: 2px solid limegreen;
+        }
+
+        .angry-theme .button:hover {
+            background-color: limegreen;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <h1>happy Valentine day to my babyyyyy</h1>
+    <div class="message" id="message">soso Will you be my Valentine?</div>
+    <button class="button yes" id="yesButton">Yes</button>
+    <button class="button no" id="noButton">No</button>
+    <div class="heart" id="heart"></div>
+
+    <audio id="bg-music" loop autoplay>
+        <source src="valentine_music.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+
+    <audio id="yes-sound" src="yes_sound.mp3"></audio>
+    <audio id="no-sound" src="no_sound.mp3"></audio>
+
+    <div id="fallingHearts"></div>
+
+    <script>
+        const message = document.getElementById("message");
+        const yesButton = document.getElementById("yesButton");
+        const noButton = document.getElementById("noButton");
+        const heart = document.getElementById("heart");
+        const fallingHearts = document.getElementById("fallingHearts");
+        const bgMusic = document.getElementById("bg-music");
+        const yesSound = document.getElementById("yes-sound");
+        const noSound = document.getElementById("no-sound");
+
+        const noAnswers = [
+            "no...?",
+            "again? oof my heart...",
+            "do you even want me",
+            "I’m not giving on u soso",
+            "now im angry...>:(",
+        ];
+
+        let currentNoAnswer = 0;
+        let noClicks = 0;  // Count how many times "No" has been clicked
+
+        // Create falling hearts effect
+        function createFallingHearts() {
+            const heartDiv = document.createElement("div");
+            heartDiv.classList.add("falling-heart");
+            heartDiv.innerText = "❤️";
+            fallingHearts.appendChild(heartDiv);
+
+            // Remove heart after animation
+            setTimeout(() => {
+                fallingHearts.removeChild(heartDiv);
+            }, 5000);
+        }
+
+        // Flood the screen with YES buttons dramatically
+        function floodYesOptions() {
+            for (let i = 0; i < 100; i++) {
+                const yesButtonFlood = document.createElement("div");
+                yesButtonFlood.classList.add("yes-flood");
+                yesButtonFlood.innerText = "YES!";
+
+                // Randomly position YES button across the screen
+                yesButtonFlood.style.fontSize = `${Math.random() * 4 + 3}em`; // Randomize size
+                yesButtonFlood.style.top = `${Math.random() * window.innerHeight}px`; // Randomize top position
+                yesButtonFlood.style.left = `${Math.random() * window.innerWidth}px`; // Randomize left position
+                yesButtonFlood.style.transform = `scale(${Math.random() + 0.5})`; // Randomize scale
+
+                document.body.appendChild(yesButtonFlood);
+
+                setTimeout(() => {
+                    yesButtonFlood.remove();
+                }, 3000); // Remove after 3 seconds to avoid overcrowding
+            }
+        }
+
+        // Flood the screen with error messages
+        function floodErrors() {
+            for (let i = 0; i < 10; i++) {
+                const errorMessage = document.createElement("div");
+                errorMessage.classList.add("error-message");
+                errorMessage.innerText = "ERROR: Virus Detected! System Breach!";
+                document.body.appendChild(errorMessage);
+
+                setTimeout(() => {
+                    errorMessage.remove();
+                }, 1000);
+            }
+        }
+
+        // Activate Angry Virus Hack Mode
+        function activateAngryMode() {
+            document.body.classList.add("angry-theme");
+            message.textContent = "You broke the system! You MUST say YES now!";
+            heart.textContent = "💥";  // Angry explosion
+            yesButton.textContent = "YES! JUST YES!";
+            noButton.textContent = "YES! JUST YES!";
+            yesButton.classList.add("yes");
+            noButton.classList.add("yes");
+            noButton.disabled = true;
+            floodErrors();
+            floodYesOptions();
+            document.body.classList.add("lagging");
+        }
+
+       // Reset to Cute Theme
+function resetCuteTheme() {
+    document.body.classList.remove("angry-theme");
+    document.body.classList.remove("lagging");  // Remove lagging class
+    message.textContent = "Yay! You're my Valentine! ❤️";
+    heart.textContent = "❤️";
+    yesButton.textContent = "Yes";
+    noButton.textContent = "No";
+    yesButton.disabled = false;
+    noButton.disabled = false;
+
+    // Reset any other states or animations
+    document.body.style.animation = ''; // Reset any ongoing animations
+    document.querySelectorAll('.falling-heart').forEach((heart) => {
+        heart.remove();  // Clear any falling hearts
+    });
+}
+
+
+        // Play the 'No' sound effect when "No" is pressed
+        noButton.addEventListener("click", () => {
+            noClicks++;
+            noSound.play();
+
+            if (noClicks >= 4) {
+                activateAngryMode();
+            } else if (currentNoAnswer < noAnswers.length) {
+                message.textContent = noAnswers[currentNoAnswer];
+                currentNoAnswer++;
+            } else {
+                message.textContent = "Will you be my Valentine? 🥺";
+                currentNoAnswer = 0;
+            }
+            heart.textContent = "💔";  // Heart broken
+            createFallingHearts();
+        });
+
+        // Play the 'Yes' sound effect when "Yes" is pressed
+        yesButton.addEventListener("click", () => {
+            yesSound.play();
+            resetCuteTheme();
+        });
+    </script>
+</body>
+</html>
